@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5 Simple JS User Input Reactions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+    input, button {
+      margin: 5px 0;
+      padding: 5px;
+      font-size: 1rem;
+    }
+    section {
+      margin-bottom: 40px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Alert the user’s name -->
+  <section>
+    <h2>1. Alert the user’s name</h2>
+    <input type="text" id="nameInput" placeholder="Enter your name">
+    <button onclick="sayHello()">Say Hello</button>
+  </section>
+
+  <!-- 2. Change background color -->
+  <section>
+    <h2>2. Change background color</h2>
+    <input type="color" id="colorPicker">
+    <button onclick="changeBg()">Change Background</button>
+  </section>
+
+  <!-- 3. Live text preview -->
+  <section>
+    <h2>3. Live text preview</h2>
+    <input type="text" id="liveText" placeholder="Type something">
+    <p id="output"></p>
+  </section>
+
+  <!-- 4. Show or hide a paragraph -->
+  <section>
+    <h2>4. Show or hide a paragraph</h2>
+    <button onclick="toggleText()">Show / Hide Text</button>
+    <p id="text" style="display:none;">This is hidden text.</p>
+  </section>
+
+  <!-- 5. Simple calculator (add two numbers) -->
+  <section>
+    <h2>5. Simple calculator (add two numbers)</h2>
+    <input type="number" id="num1" placeholder="Number 1">
+    <input type="number" id="num2" placeholder="Number 2">
+    <button onclick="addNumbers()">Add</button>
+    <p id="sum"></p>
+  </section>
+
+  <script>
+    // 1. Alert the user’s name
+    function sayHello() {
+      const name = document.getElementById('nameInput').value;
+      alert('Hello, ' + name + '!');
+    }
+
+    // 2. Change background color
+    function changeBg() {
+      const color = document.getElementById('colorPicker').value;
+      document.body.style.backgroundColor = color;
+    }
+
+    // 3. Live text preview
+    document.getElementById('liveText').addEventListener('input', function() {
+      document.getElementById('output').textContent = 'You typed: ' + this.value;
+    });
+
+    // 4. Show or hide a paragraph
+    function toggleText() {
+      const text = document.getElementById('text');
+      text.style.display = text.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 5. Simple calculator (add two numbers)
+    function addNumbers() {
+      const n1 = parseFloat(document.getElementById('num1').value);
+      const n2 = parseFloat(document.getElementById('num2').value);
+      if (!isNaN(n1) && !isNaN(n2)) {
+        document.getElementById('sum').textContent = 'Sum: ' + (n1 + n2);
+      } else {
+        document.getElementById('sum').textContent = 'Please enter two numbers!';
+      }
+    }
+  </script>
+</body>
+</html>

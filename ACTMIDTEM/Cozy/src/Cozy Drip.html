@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozy Drip - Coffee Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        h1 { font-size: 3rem; font-weight: bold; margin-bottom: 1rem; }
+        h2 { font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem; }
+        h3 { font-size: 1.25rem; font-weight: 600; }
+        p { font-size: 1.125rem; }
+
+        .hero-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200') center/cover;
+            min-height: 600px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-button {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button.active {
+            border-bottom-color: #92400e;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button.primary {
+            background-color: #92400e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button.primary:hover {
+            background-color: #78350f;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-amber-50">
+    
+    <!-- Navigation -->
+    <nav class="sticky-nav">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <span class="text-2xl font-bold text-amber-900">Cozy Drip</span>
+                </div>
+                <div class="hidden md:flex gap-6 items-center">
+                    <a href="#home" class="text-gray-700 hover:text-amber-900">Home</a>
+                    <a href="#about" class="text-gray-700 hover:text-amber-900">About</a>
+                    <a href="#menu" class="text-gray-700 hover:text-amber-900">Menu</a>
+                    <a href="#contact" class="text-gray-700 hover:text-amber-900">Contact</a>
+                    <button onclick="openLoginModal()" class="primary">Login</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg text-white flex items-center">
+        <div class="max-w-7xl mx-auto px-4 text-left">
+            <h1>Welcome to Cozy Drip</h1>
+            <p class="mb-8 text-xl max-w-2xl">
+                Experience the perfect blend of comfort and quality. 
+                Every cup is crafted with passion and served with warmth.
+            </p>
+            <div class="flex gap-4">
+                <button onclick="scrollToSection('menu')" class="primary">View Menu</button>
+                <button onclick="scrollToSection('contact')" class="bg-white text-amber-900 px-6 py-3 rounded hover:bg-gray-100">
+                    Contact Us
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-4 bg-gradient-to-b from-amber-50 to-amber-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="relative h-[500px] rounded-lg overflow-hidden shadow-xl">
+                    <img 
+                        src="https://images.unsplash.com/photo-1653762377140-fdc924220c45?w=800" 
+                        alt="Business people in formal attire having a conversation over coffee"
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+                <div>
+                    <h2>Our Story</h2>
+                    <p class="mb-6 text-gray-700">
+                        It all started in 2024 when a group of passionate
+                        classmates gathered over coffee, discussing their
+                        dreams and aspirations. What began as casual
+                        conversations about entrepreneurship quickly
+                        turned into a shared vision: to create a welcoming
+                        space where quality coffee and meaningful
+                        connections could flourish.
+                    </p>
+                    <p class="mb-8 text-gray-700">
+                        From those late-night study sessions and business
+                        plan brainstorming, Cozy Drip was born. We
+                        combined our diverse skills, united by our love
+                        for exceptional coffee and our commitment to
+                        building something special together. Today, every
+                        cup we serve carries the warmth of friendship and
+                        the dedication of young entrepreneurs pursuing
+                        their dreams.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-amber-900 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="mb-2">Sustainable</h3>
+                            <p class="text-sm text-gray-600">Ethically sourced beans</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-amber-900 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="mb-2">Premium</h3>
+                            <p class="text-sm text-gray-600">Award-winning quality</p>
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-12 h-12 bg-amber-900 rounded-full flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="mb-2">Crafted</h3>
+                            <p class="text-sm text-gray-600">Made with love</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-center mb-12">Our Menu</h2>
+            
+            <!-- Coffee -->
+            <h3 class="mb-6 text-amber-900">Coffee</h3>
+            <div class="menu-grid mb-12">
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400" alt="Espresso">
+                    <div class="p-4">
+                        <h3>Espresso</h3>
+                        <p class="text-gray-600 text-sm mb-2">Rich and bold single shot</p>
+                        <p class="text-amber-900 font-bold">₱120</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?w=400" alt="Cappuccino">
+                    <div class="p-4">
+                        <h3>Cappuccino</h3>
+                        <p class="text-gray-600 text-sm mb-2">Espresso with steamed milk foam</p>
+                        <p class="text-amber-900 font-bold">₱140</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400" alt="Latte">
+                    <div class="p-4">
+                        <h3>Latte</h3>
+                        <p class="text-gray-600 text-sm mb-2">Smooth espresso with steamed milk</p>
+                        <p class="text-amber-900 font-bold">₱145</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1569935333166-e22d7d8f87fe?w=400" alt="Americano">
+                    <div class="p-4">
+                        <h3>Americano</h3>
+                        <p class="text-gray-600 text-sm mb-2">Espresso with hot water</p>
+                        <p class="text-amber-900 font-bold">₱130</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400" alt="Mocha">
+                    <div class="p-4">
+                        <h3>Mocha</h3>
+                        <p class="text-gray-600 text-sm mb-2">Espresso with chocolate and milk</p>
+                        <p class="text-amber-900 font-bold">₱155</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400" alt="Caramel Macchiato">
+                    <div class="p-4">
+                        <h3>Caramel Macchiato</h3>
+                        <p class="text-gray-600 text-sm mb-2">Vanilla, espresso, and caramel</p>
+                        <p class="text-amber-900 font-bold">₱160</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pastries & Desserts -->
+            <h3 class="mb-6 text-amber-900">Pastries & Desserts</h3>
+            <div class="menu-grid mb-12">
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400" alt="Croissant">
+                    <div class="p-4">
+                        <h3>Butter Croissant</h3>
+                        <p class="text-gray-600 text-sm mb-2">Flaky, buttery perfection</p>
+                        <p class="text-amber-900 font-bold">₱85</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400" alt="Chocolate Cake">
+                    <div class="p-4">
+                        <h3>Chocolate Cake</h3>
+                        <p class="text-gray-600 text-sm mb-2">Rich dark chocolate delight</p>
+                        <p class="text-amber-900 font-bold">₱120</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1587241321921-91a834d82253?w=400" alt="Blueberry Muffin">
+                    <div class="p-4">
+                        <h3>Blueberry Muffin</h3>
+                        <p class="text-gray-600 text-sm mb-2">Fresh baked with real blueberries</p>
+                        <p class="text-amber-900 font-bold">₱95</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1519869325930-281384150729?w=400" alt="Cheesecake">
+                    <div class="p-4">
+                        <h3>New York Cheesecake</h3>
+                        <p class="text-gray-600 text-sm mb-2">Creamy classic with berry sauce</p>
+                        <p class="text-amber-900 font-bold">₱135</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food -->
+            <h3 class="mb-6 text-amber-900">Food</h3>
+            <div class="menu-grid mb-12">
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400" alt="Breakfast Bowl">
+                    <div class="p-4">
+                        <h3>Breakfast Bowl</h3>
+                        <p class="text-gray-600 text-sm mb-2">Eggs, bacon, avocado & toast</p>
+                        <p class="text-amber-900 font-bold">₱185</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400" alt="Club Sandwich">
+                    <div class="p-4">
+                        <h3>Club Sandwich</h3>
+                        <p class="text-gray-600 text-sm mb-2">Triple decker with fries</p>
+                        <p class="text-amber-900 font-bold">₱195</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400" alt="Salad Bowl">
+                    <div class="p-4">
+                        <h3>Fresh Garden Salad</h3>
+                        <p class="text-gray-600 text-sm mb-2">Mixed greens with vinaigrette</p>
+                        <p class="text-amber-900 font-bold">₱165</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400" alt="Pasta">
+                    <div class="p-4">
+                        <h3>Creamy Carbonara</h3>
+                        <p class="text-gray-600 text-sm mb-2">Classic Italian pasta</p>
+                        <p class="text-amber-900 font-bold">₱215</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beverages -->
+            <h3 class="mb-6 text-amber-900">Beverages</h3>
+            <div class="menu-grid">
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400" alt="Iced Coffee">
+                    <div class="p-4">
+                        <h3>Iced Coffee</h3>
+                        <p class="text-gray-600 text-sm mb-2">Cold brew perfection</p>
+                        <p class="text-amber-900 font-bold">₱135</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1553787434-7e52f95b7d31?w=400" alt="Fruit Smoothie">
+                    <div class="p-4">
+                        <h3>Fruit Smoothie</h3>
+                        <p class="text-gray-600 text-sm mb-2">Fresh blended fruits</p>
+                        <p class="text-amber-900 font-bold">₱145</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400" alt="Matcha Latte">
+                    <div class="p-4">
+                        <h3>Matcha Latte</h3>
+                        <p class="text-gray-600 text-sm mb-2">Premium Japanese green tea</p>
+                        <p class="text-amber-900 font-bold">₱155</p>
+                    </div>
+                </div>
+                <div class="menu-card">
+                    <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400" alt="Hot Chocolate">
+                    <div class="p-4">
+                        <h3>Hot Chocolate</h3>
+                        <p class="text-gray-600 text-sm mb-2">Rich Belgian chocolate</p>
+                        <p class="text-amber-900 font-bold">₱140</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-4 bg-amber-50">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-center mb-12">Get in Touch</h2>
+            <form id="contactForm" class="bg-white p-8 rounded-lg shadow-lg">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Name</label>
+                    <input type="text" id="name" required class="w-full p-3 border rounded">
+                    <div id="nameError" class="error-message"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="email" required class="w-full p-3 border rounded">
+                    <div id="emailError" class="error-message"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">Message</label>
+                    <textarea id="message" required rows="5" class="w-full p-3 border rounded"></textarea>
+                    <div id="messageError" class="error-message"></div>
+                </div>
+                <button type="submit" class="primary w-full">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-neutral-900 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <svg class="w-8 h-8 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <span class="text-xl">Cozy Drip</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Crafting exceptional coffee experiences since 2024. 
+                        Every cup tells a story of passion and quality.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.instagram.com/veeeeyyyyyy/" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-amber-700 rounded-full flex items-center justify-center hover:bg-amber-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-amber-700 rounded-full flex items-center justify-center hover:bg-amber-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-amber-700 rounded-full flex items-center justify-center hover:bg-amber-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#menu" class="text-gray-400 hover:text-white">Menu</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Locations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#contact" class="text-gray-400 hover:text-white">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Cozy Drip. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            
+            <div class="flex border-b mb-6">
+                <button class="tab-button active" onclick="switchTab('login')">Login</button>
+                <button class="tab-button" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="loginTab" class="tab-content active">
+                <h3 class="mb-4">Welcome Back</h3>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit" class="primary w-full mb-2">Login</button>
+                    <button type="button" onclick="switchTab('forgot')" class="text-sm text-amber-900">
+                        Forgot Password?
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sign Up Tab -->
+            <div id="signupTab" class="tab-content">
+                <h3 class="mb-4">Create Account</h3>
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <input type="text" placeholder="Full Name" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <input type="password" placeholder="Confirm Password" required>
+                    <button type="submit" class="primary w-full">Sign Up</button>
+                </form>
+            </div>
+
+            <!-- Forgot Password Tab -->
+            <div id="forgotTab" class="tab-content">
+                <h3 class="mb-4">Reset Password</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Enter your email and we'll send you a reset link.
+                </p>
+                <form id="forgotForm" onsubmit="handleForgot(event)">
+                    <input type="email" placeholder="Email" required>
+                    <button type="submit" class="primary w-full mb-2">Send Reset Link</button>
+                    <button type="button" onclick="switchTab('login')" class="text-sm text-amber-900">
+                        Back to Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show selected tab
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.querySelectorAll('.tab-button')[0].classList.add('active');
+            } else if (tab === 'signup') {
+                document.getElementById('signupTab').classList.add('active');
+                document.querySelectorAll('.tab-button')[1].classList.add('active');
+            } else if (tab === 'forgot') {
+                document.getElementById('forgotTab').classList.add('active');
+            }
+        }
+
+        // Form handlers
+        function handleLogin(event) {
+            event.preventDefault();
+            alert('Login functionality would connect to your backend here!');
+            closeLoginModal();
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            alert('Sign up functionality would connect to your backend here!');
+            closeLoginModal();
+        }
+
+        function handleForgot(event) {
+            event.preventDefault();
+            alert('Password reset email would be sent here!');
+            switchTab('login');
+        }
+
+        // Contact form
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            // Here you would send to your PHP backend
+            alert(`Thank you ${name}! Your message has been sent. We'll contact you at ${email} soon!`);
+            
+            // Reset form
+            this.reset();
+        });
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                closeLoginModal();
+            }
+        }
+    </script>
+</body>
+</html>
